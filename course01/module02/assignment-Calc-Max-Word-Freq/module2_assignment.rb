@@ -34,7 +34,7 @@ class LineAnalyzer
   #* identify the words that were used the maximum number of times and
   #  store that in the highest_wf_words attribute.
   def calculate_word_frequency()
-    words = @content.split(" ")
+    words = @content.downcase.split(" ")
     frequencies = Hash.new(0)
     words.each { |word| frequencies[word] += 1 }
     frequencies = frequencies.sort_by {|a, b| b }
@@ -47,8 +47,6 @@ class LineAnalyzer
       end
     end
   end
-
-
 end
 
 #  Implement a class called Solution. 
@@ -59,6 +57,14 @@ class Solution
   #* highest_count_across_lines - a number with the maximum value for highest_wf_words attribute in the analyzers array.
   #* highest_count_words_across_lines - a filtered array of LineAnalyzer objects with the highest_wf_words attribute 
   #  equal to the highest_count_across_lines determined previously.
+  attr_reader :analyzers
+  attr_reader :highest_count_across_lines
+  attr_reader :highest_count_words_across_lines
+  
+  
+  def initialize
+    @analyzers = []
+  end
 
   # Implement the following methods in the Solution class.
   #* analyze_file() - processes 'test.txt' intro an array of LineAnalyzers and stores them in analyzers.
@@ -67,16 +73,47 @@ class Solution
   #* print_highest_word_frequency_across_lines() - prints the values of LineAnalyzer objects in 
   #  highest_count_words_across_lines in the specified format
   
+  
   # Implement the analyze_file() method() to:
   #* Read the 'test.txt' file in lines 
   #* Create an array of LineAnalyzers for each line in the file
+  def analyze_file()
+    File.foreach("test.txt").with_index do |line, line_num|
+      line_analyzer = LineAnalyzer.new(line, line_num)
+      @analyzers << line_analyzer
+    end
+  end
+  
 
   # Implement the calculate_line_with_highest_frequency() method to:
   #* calculate the maximum value for highest_wf_count contained by the LineAnalyzer objects in analyzers array
   #  and stores this result in the highest_count_across_lines attribute.
   #* identifies the LineAnalyzer objects in the analyzers array that have highest_wf_count equal to highest_count_across_lines 
   #  attribute value determined previously and stores them in highest_count_words_across_lines.
+  def calculate_line_with_highest_frequency()
+    wf_counts = []
+    @analyzers.each do |analyzer|
+      wf_counts << analyzer.highest_wf_count
+    end
+    @highest_count_across_lines = wf_counts.max
+
+    highest_count_words = []
+    @analyzers.each do |analyzer| 
+      if analyzer.highest_wf_count == @highest_count_across_lines
+        highest_count_words << analyzer
+      end
+    end
+    @highest_count_words_across_lines = highest_count_words
+  end
+
+
+
 
   #Implement the print_highest_word_frequency_across_lines() method to
   #* print the values of objects in highest_count_words_across_lines in the specified format
+  def print_highest_word_frequency_across_lines()
+    @highest_count_words_across_lines.each do |analyzer|
+      puts analyzer.highest_wf_words
+    end
+  end
 end
